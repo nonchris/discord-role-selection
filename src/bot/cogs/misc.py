@@ -1,4 +1,5 @@
 import discord
+import discord.ui as ui
 from discord.ext import commands
 from discord.ext import tasks
 
@@ -46,5 +47,6 @@ class Misc(commands.Cog):
     async def my_task(self):
         pass
 
-def setup(bot):
-    bot.add_cog(Misc(bot))
+
+async def setup(bot):
+    await bot.add_cog(Misc(bot))

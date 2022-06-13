@@ -66,11 +66,12 @@ async def on_ready():
     # TODO: Register your extensions here
     initial_extensions = [
         '.cogs.misc',
-        '.cogs.help'
+        '.cogs.help',
+        '.cogs.roles'
     ]
 
     for extension in initial_extensions:
-        bot.load_extension(extension, package=__package__)
+        await bot.load_extension(extension, package=__package__)
 
 
 def start_bot(token=None):
