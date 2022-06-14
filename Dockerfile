@@ -1,5 +1,5 @@
 ARG ARCH=
-FROM ${ARCH}ubuntu:20.04
+FROM ${ARCH}debian:bullseye
 
 RUN apt-get update && \
     apt-get upgrade -y && \
