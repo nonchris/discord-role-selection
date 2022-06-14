@@ -2,6 +2,7 @@
 import os
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 # setup of logging and env-vars
@@ -48,15 +49,6 @@ async def on_ready():
     function called when the bot is ready. Emits the '[Bot] has connected' message
     """
 
-    print()
-    member_count = 0
-    guild_string = ""
-    for g in bot.guilds:
-        guild_string += f"{g.name} - {g.id} - Members: {g.member_count}\n"
-        member_count += g.member_count
-
-    logger.info(f"Bot '{bot.user.name}' has connected, active on {len(bot.guilds)} guilds:\n{guild_string}")
-
     await bot.change_presence(
         activity=discord.Activity(type=discord.ActivityType.watching, name=ACTIVITY_NAME))
 
@@ -72,6 +64,21 @@ async def on_ready():
 
     for extension in initial_extensions:
         await bot.load_extension(extension, package=__package__)
+
+    print()
+    member_count = 0
+    guild_string = ""
+    for g in bot.guilds:
+
+        guild_string += f"{g.name} - {g.id} - Members: {g.member_count}\n"
+        member_count += g.member_count
+        try:
+            bot.tree.copy_global_to(guild=g)
+            await bot.tree.sync(guild=g)
+        except discord.errors.Forbidden:
+            logger.warning(f"Can't push slash commands to: '{g.name}'")
+
+    logger.info(f"Bot '{bot.user.name}' has connected, active on {len(bot.guilds)} guilds:\n{guild_string}")
 
 
 def start_bot(token=None):
