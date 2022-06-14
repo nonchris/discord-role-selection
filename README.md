@@ -1,6 +1,5 @@
-# discord-bot-template
-Generic, functional bot based on discord.py  
-Including a custom help command and ping command, utils for easy embed creation, logging configuration, and a general bot setup
+# role selection bot
+A first approach to a role-selection-bot for discord using drop down menus and slash commands.  
 
 ## setup
 ##### Using pip to install the bot as editable package:  
@@ -20,6 +19,7 @@ Including a custom help command and ping command, utils for easy embed creation,
 | `OWNER_NAME="unknwon"` | Name of the bot owner |
 | `OWNER_ID="100000000000000000"` | ID of the bot owner |
 | `ACTIVITY_NAME=f"{PREFIX}help"`| Activity bot plays |  
+|`ROLES_JSON="data/roles.json"` | The file where the roles to select can be found |
 
 The shown values are the default values that will be loaded if nothing else is specified.  
 Expressions like `{PREFIX}` will be replaced by during loading the variable and can be used in specified env variables.
@@ -35,6 +35,25 @@ Or use a json-file expected at: `./data/config.json` like:
 ```
 
 _If a variable is set using env and json the **the environment-variable replaces the json**!_
+
+### example for roles.json
+The first key is the server id, then the key `roles` and then the name of the menu.  
+```json
+{
+    "446373739740004352": {
+        "roles": {
+            "character": [
+                448617700386668574,
+                448617700399382531
+            ],
+            "notification": [
+                460073915327184900,
+                570904869138071572
+            ]
+        }
+    }
+}
+```
 
 ## features
 This bot does 'nothing' but is completely functional!  
@@ -52,21 +71,6 @@ The bot uses all intents by default, those are required for such simple things l
 You need to enable those intents in the discord developers portal under "Application/Bot/Privileged Gateway Intents".  
 It's possible reconfigure the requested intents in `main.py` if you don't need them.  
 But I'd suggest using them all for the beginning, especially if you're relatively new to discord.py.
-
-# I'm new to bots - where to start?
-Have a look at `src/bot/cogs/misc.py` this is a good place to start with your first smaller functions.  
-You'll find some basic examples there.  
-Try to modify the `ping`-command or start with a small listener (`on_message`) that responds to each message the bot receives.  
-You can expand to yor own, new modules when you feel ready for it :)  
-The official docs for discord.py are [here](https://discordpy.readthedocs.io/en/latest/api.html?highlight=guild#api-reference).
-
-## about
-This repository contains code that was written by me across various bot-projects, like:  
-https://github.com/nonchris/discord-fury  
-https://github.com/nonchris/quiz-bot  
-https://github.com/Info-Bonn/verification-listener
-
-I collected the most useful and generic functions to save me some time when starting the next bot-project.
 
 ### documentation
 In order to render this documentation, just call `doxygen`
