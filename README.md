@@ -1,5 +1,6 @@
 # role selection bot
 A first approach to a role-selection-bot for discord using drop down menus and slash commands.  
+This bot is written for the mario switch sports resort, but can easily be modified to fit any other server.  
 
 ## setup
 ##### Using pip to install the bot as editable package:  
@@ -56,15 +57,10 @@ The first key is the server id, then the key `roles` and then the name of the me
 ```
 
 ## features
-This bot does 'nothing' but is completely functional!  
-_What is does:_  
-* setup logging
-* scan env variables for a more customizable behaviour
-* overwrite `on_ready()` function for information at startup
-* make bot react to custom prefix and mention
-* add more advanced help command
-* register example cog with `b!ping` command
-* util functions for easy embed creation, id extraction and more
+Dropdown menu generation from json files.  
+
+#### This is cool! I want to use this bot
+Cool! Simply create the `roles.json` file for your server and adjust the command names and keys in `cogs/roles.py` and you're ready to go :D
 
 Note:  
 The bot uses all intents by default, those are required for such simple things like 'display member-count at startup'.  
