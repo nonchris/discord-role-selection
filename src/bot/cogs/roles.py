@@ -159,9 +159,17 @@ class AutoRoleMenu(commands.Cog):
         await interaction.response.send_message(
             'Pick the roles you want:\n' + extra_info, view=view, ephemeral=ephemeral)
 
+    @app_commands.command(name="notification", description="Get the character roles you want")
+    @app_commands.guild_only
+    async def select_notification_roles(self, interaction: discord.Interaction):
+        """Select roles you wanna have"""
+        await self.send_select_roles(interaction, roles_menu="notification", max_len=20)
 
-        # Sending a message containing our view
-        await ctx.send('Pick the roles you want:', view=view)
+    @app_commands.command(name="character", description="Get the character roles you want")
+    @app_commands.guild_only
+    async def select_character_roles(self, interaction: discord.Interaction):
+        """Select roles you wanna have"""
+        await self.send_select_roles(interaction, roles_menu="character", max_len=20)
 
     @app_commands.command(name="update_roles", description="Add or remove a role from the selection database")
     @app_commands.guild_only
