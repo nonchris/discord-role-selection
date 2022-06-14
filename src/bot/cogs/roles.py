@@ -144,6 +144,39 @@ class AutoRoleMenu(commands.Cog):
         # Sending a message containing our view
         await ctx.send('Pick the roles you want:', view=view)
 
+    @app_commands.command(name="update_roles", description="Add or remove a role from the selection database")
+    @app_commands.guild_only
+    async def add_role(self, interaction: discord.Interaction, role: discord.Role,
+                       pool: Literal["notification", "character"], action: Literal["add", "remove"]):
+        """ Add or remove a key from the selection database """
+
+        member: discord.Member = interaction.guild.get_member(interaction.user.id)
+        if not member.guild_permissions.ban_members:
+            await interaction.response.send_message("Only users with ban permissions can do this.", ephemeral=False)
+            return
+
+        # read
+        with open(ROLES_JSON, "r") as f:
+            roles_json = json.load(f)
+
+        # zoom in
+        target: list[int] = roles_json[str(interaction.guild.id)]["roles"][pool]
+        # okay, shall be added
+        if action == "add":
+            target.append(role.id)
+
+        # shall be removed
+        if action == "remove":
+            target.remove(role.id)
+
+        # write again
+        with open(ROLES_JSON, "w") as f:
+            json.dump(roles_json, f, indent=4)
+
+        # response
+        await interaction.response.send_message(
+            f"The role {role.mention} was {'added to' if action == 'add' else 'removed from'} '{pool}'", ephemeral=False)
+
 
 async def setup(bot):
     await bot.add_cog(AutoRoleMenu(bot))
