@@ -133,13 +133,32 @@ class AutoRoleMenu(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
 
-    @commands.command(name="roles", help="Roles roles roles")
-    async def colour(self, ctx: commands.Context):
-        """Select roles you wanna have"""
+    @staticmethod
+    async def send_select_roles(interaction: discord.Interaction,
+                                roles_menu="character",
+                                path_to_roles_json=ROLES_JSON,
+                                max_len=25,
+                                min_values=0,
+                                max_values=25,
+                                ephemeral=True):
+        """ Generate role dropdowns """
 
-        # Create the view containing our dropdown
-        menu = RoleDropdown(ctx.guild, ctx.author)
-        view = DropdownView(menu)
+        # create the view containing our dropdown
+        # get an object that can generate as much dropdowns as we need
+        options_maker = DropdownMaker(interaction.guild, interaction.user,
+                                      roles_menu=roles_menu,
+                                      path_to_roles_json=path_to_roles_json)
+        # get option menus
+        options = options_maker.get_role_menus(max_len=max_len, min_values=min_values, max_values=max_values)
+        # create view
+        view = DropdownView(*options)
+
+        # sending a message containing our view
+        extra_info = (f"There are {len(options)} menus to select roles from, "
+                      f"because they don't fit in one single menu :)" if len(options) > 1 else "")
+        await interaction.response.send_message(
+            'Pick the roles you want:\n' + extra_info, view=view, ephemeral=ephemeral)
+
 
         # Sending a message containing our view
         await ctx.send('Pick the roles you want:', view=view)
