@@ -59,9 +59,12 @@ class RoleDropdown(discord.ui.Select):
 
 
 class DropdownView(discord.ui.View):
-    def __init__(self, drop_down_item: discord.ui.Select):
+    """ UI helper that warps the options"""
+
+    def __init__(self, *drop_down_items: discord.ui.Select):
         super(DropdownView, self).__init__()
-        self.add_item(drop_down_item)
+        for item in drop_down_items:
+            self.add_item(item)
 
 
 class AutoRoleMenu(commands.Cog):
