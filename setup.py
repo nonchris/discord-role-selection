@@ -10,7 +10,7 @@ setup(
     # TODO: Adjust your project information here
     name='discord-bot',
     version='2.0.0',
-    description='A discord bot template',
+    description='A role selection bot using drop down menus',
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/nonchris/discord-bot',
@@ -26,7 +26,7 @@ setup(
 
     python_requires='>=3.8, <4',
 
-    install_requires='discord.py ~= 1.7.2',
+    install_requires='discord.py @ git+https://github.com/Rapptz/discord.py#903e2e6',  # install d.py using git
 
     classifiers=[
 
