@@ -6,6 +6,9 @@ here = pathlib.Path(__file__).parent.resolve()
 # Get the long description from the README file
 long_description = (here / 'README.md').read_text(encoding='utf-8')
 
+with open('requirements.txt') as f:
+    install_requires = f.read().splitlines()
+
 setup(
     # TODO: Adjust your project information here
     name='discord-bot',
@@ -26,7 +29,7 @@ setup(
 
     python_requires='>=3.8, <4',
 
-    install_requires='discord.py @ git+https://github.com/Rapptz/discord.py#903e2e6',  # install d.py using git
+    install_requires=install_requires,
 
     classifiers=[
 
