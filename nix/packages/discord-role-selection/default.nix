@@ -1,6 +1,7 @@
 { lib
 , buildPythonPackage
-, discordpy_2
+, fetchFromGitHub
+, discordpy
 }:
 
 buildPythonPackage rec {
@@ -8,7 +9,21 @@ buildPythonPackage rec {
   version = "2.0.0";
 
   src = ../../../.;
-  propagatedBuildInputs = [ discordpy_2 ];
+
+  propagatedBuildInputs = [
+    (discordpy.overrideAttrs
+      (old: rec {
+        pname = "discord.py";
+        version = "2.0.0a4370+g868476c9";
+        src = fetchFromGitHub {
+          owner = "Rapptz";
+          repo = pname;
+          rev = "903e2e64e9182b8d3330ef565af7bb46ff9f04da";
+          sha256 = "sha256-u17sG3mjJf19euZ0CHvJwnvhb16F3WyAQt/w+RZFu1Y=";
+        };
+      }))
+  ];
+
   doCheck = false;
 
   # removes install_requires from the setup.py

@@ -19,9 +19,7 @@
 
         packages = flake-utils.lib.flattenTree rec {
 
-          discordpy_2 = pkgs.python3Packages.callPackage ./nix/packages/discordpy/default.nix { };
-
-          discord-bot = pkgs.python3Packages.callPackage ./nix/packages/discord-role-selection { inherit discordpy_2; };
+          discord-bot = pkgs.python3Packages.callPackage ./nix/packages/discord-role-selection { };
 
         };
 
