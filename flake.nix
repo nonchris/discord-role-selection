@@ -56,7 +56,7 @@
                   "A role selection bot using drop down menus";
                 homepage = "https://github.com/nonchris/discord-role-selection";
                 platforms = platforms.unix;
-                maintainers = with maintainers; [ nonchris ];
+                maintainers = with maintainers; [ MayNiklas ];
               };
             };
 
