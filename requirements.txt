@@ -1,1 +1,1 @@
-discord.py~=1.7.2
+discord.py @ git+https://github.com/Rapptz/discord.py#903e2e6
