@@ -1,1 +1,1 @@
-discord.py @ git+https://github.com/Rapptz/discord.py#903e2e6
+discord.py ~= 2.0.0
