@@ -20,29 +20,24 @@
 
         packages = flake-utils.lib.flattenTree rec {
 
-          discord-bot =
-            let
-              fetchFromGitHub = pkgs.fetchFromGitHub;
-              discordpy = pkgs.python3Packages.discordpy;
-            in
-            pkgs.python3Packages.buildPythonPackage rec {
-              pname = "discord-bot";
-              version = "2.0.0";
+          discord-bot = pkgs.python3Packages.buildPythonPackage rec {
+            pname = "discord-bot";
+            version = "2.0.0";
 
-              src = self;
-              doCheck = false;
-              propagatedBuildInputs = [
-                discordpy
-              ];
+            src = self;
+            doCheck = false;
+            propagatedBuildInputs = with pkgs.python3Packages;[
+              discordpy
+            ];
 
-              meta = with lib; {
-                description =
-                  "A role selection bot using drop down menus";
-                homepage = "https://github.com/nonchris/discord-role-selection";
-                platforms = platforms.unix;
-                maintainers = with maintainers; [ MayNiklas ];
-              };
+            meta = with lib; {
+              description =
+                "A role selection bot using drop down menus";
+              homepage = "https://github.com/nonchris/discord-role-selection";
+              platforms = platforms.unix;
+              maintainers = with maintainers; [ MayNiklas ];
             };
+          };
 
         };
 
