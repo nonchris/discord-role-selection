@@ -187,8 +187,20 @@ class AutoRoleMenu(commands.Cog):
         with open(ROLES_JSON, "r") as f:
             roles_json = json.load(f)
 
+        # check if json has already the needed structure
+        guild_key = str(interaction.guild.id)
+        if guild_key not in roles_json:
+            roles_json[guild_key] = {}
+
+        if "roles" not in roles_json[guild_key]:
+            roles_json[guild_key]["roles"] = {}
+
+        # TODO: validate if pool has it's own slash command so it can be addressed from the user via discord
+        if pool not in roles_json[guild_key]["roles"]:
+            roles_json[guild_key]["roles"][pool] = []
+
         # zoom in
-        target: list[int] = roles_json[str(interaction.guild.id)]["roles"][pool]
+        target: list[int] = roles_json[guild_key]["roles"][pool]
         # okay, shall be added
         if action == "add":
             target.append(role.id)
