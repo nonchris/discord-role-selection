@@ -60,7 +60,9 @@ The first key is the server id, then the key `roles` and then the name of the me
 Dropdown menu generation from json files.  
 
 #### This is cool! I want to use this bot
-Cool! Simply create the `roles.json` file for your server and adjust the command names and keys in `cogs/roles.py` and you're ready to go :D
+Cool! - Configure the variables mentioned above, and you're good to go!
+You just adjust the command names and keys in `cogs/roles.py` and fill those categories with roles, and you're ready to go :D  
+But how do I fill those categories? -  Simply use the `/update_roles` command or go into the json and add them manually, like in the example above.  
 
 Note:  
 The bot uses all intents by default, those are required for such simple things like 'display member-count at startup'.  
