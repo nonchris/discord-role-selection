@@ -5,6 +5,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from ..log_setup import logger
 from ..environment import ROLES_JSON
 
 
@@ -191,10 +192,12 @@ class AutoRoleMenu(commands.Cog):
         # okay, shall be added
         if action == "add":
             target.append(role.id)
+            logger.info(f"Pool '{pool}': Added '{role.name}' with id ({role.id}), invoked by '{interaction.user.id}'")
 
         # shall be removed
         if action == "remove":
             target.remove(role.id)
+            logger.info(f"Pool '{pool}': Removed '{role.name}' with id ({role.id}), invoked by '{interaction.user.id}'")
 
         # write again
         with open(ROLES_JSON, "w") as f:
