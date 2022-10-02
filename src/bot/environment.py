@@ -94,3 +94,10 @@ OWNER_NAME = load_env("OWNER_NAME", "unknown", config_dict=cfg_dict)   # owner n
 OWNER_ID = int(load_env("OWNER_ID", "100000000000000000", config_dict=cfg_dict))  # discord id of the owner
 ACTIVITY_NAME = load_env("ACTIVITY_NAME", f"{PREFIX}help", config_dict=cfg_dict)  # activity bot plays
 ROLES_JSON = load_env("ROLES_JSON", "data/roles.json", config_dict=cfg_dict)  # activity bot plays
+
+# make sure the file is there
+if not os.path.isfile(ROLES_JSON):
+    with open(ROLES_JSON, "w") as f:
+        f.write("{}")
+    logger.warning(f"CREATED EMPTY FILE at: '{ROLES_JSON}'")
+
