@@ -124,8 +124,8 @@ class DropdownMaker:
 class DropdownView(discord.ui.View):
     """ UI helper that warps the options"""
 
-    def __init__(self, *drop_down_items: discord.ui.Select):
-        super(DropdownView, self).__init__()
+    def __init__(self, *drop_down_items: discord.ui.Select, timeout=None):
+        super(DropdownView, self).__init__(timeout=timeout)
         for item in drop_down_items:
             self.add_item(item)
 
