@@ -1,6 +1,9 @@
 # role selection bot
-A first approach to a role-selection-bot for discord using drop down menus and slash commands.  
-This bot is written for the mario switch sports resort, but can easily be modified to fit any other server.  
+An approach to a role-selection-bot for discord using drop-down menus, buttons and slash commands.  
+Use `/roles` to get a selection of all available / pre-configured categories of roles and a drop-down after selection.  
+Easy to use configuration using a discord slash command.  
+This bot is written for the mario switch sports resort, but can be used on any other server without modification.  
+It does feature multi-guild support.  
 
 ## setup
 ##### Using pip to install the bot as editable package:  
@@ -38,6 +41,7 @@ Or use a json-file expected at: `./data/config.json` like:
 _If a variable is set using env and json the **the environment-variable replaces the json**!_
 
 ### example for roles.json
+This explanation is optional. The whole configuration can be done using discord without caring about its internal data structure!  
 The first key is the server id, then the key `roles` and then the name of the menu.  
 ```json
 {
@@ -57,12 +61,13 @@ The first key is the server id, then the key `roles` and then the name of the me
 ```
 
 ## features
-Dropdown menu generation from json files.  
+Dropdown menu generation from a json file.
 
 #### This is cool! I want to use this bot
 Cool! - Configure the variables mentioned above, and you're good to go!
-You just adjust the command names and keys in `cogs/roles.py` and fill those categories with roles, and you're ready to go :D  
-But how do I fill those categories? -  Simply use the `/update_roles` command or go into the json and add them manually, like in the example above.  
+But how do I fill those pools? -  Simply use the `/update_roles` command or go into the json and add them manually, like in the example above.  
+You can also create new pools by simply trying to add a role to a not yet existing pool. The pool will be created automatically.  
+The bot can run on multiple guilds at the same time. The needed data-structure is created automatically.
 
 Note:  
 The bot uses all intents by default, those are required for such simple things like 'display member-count at startup'.  
