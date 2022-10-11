@@ -141,6 +141,7 @@ class DropDownSendButton(discord.ui.Button):
     def __init__(self, pool: str):
         super().__init__()
         self.label = pool
+        self.style = discord.ButtonStyle.green
 
     async def callback(self, interaction: discord.Interaction):
         """ Send a dropdown for the selected pool """
