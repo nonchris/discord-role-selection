@@ -1,5 +1,5 @@
 import json
-from typing import Literal
+from typing import Literal, Union
 
 import discord
 from discord import app_commands
@@ -7,6 +7,7 @@ from discord.ext import commands
 
 from ..log_setup import logger
 from ..environment import ROLES_JSON
+from ..utils import utils as utl
 
 
 class RoleDropdown(discord.ui.Select):
@@ -172,6 +173,25 @@ class AutoRoleMenu(commands.Cog):
         """Select roles you wanna have"""
         await self.send_select_roles(interaction, roles_menu="character", max_len=20)
 
+    @staticmethod                                                  # id     # roles   # pool     # r-ids
+    def get_dict_ensure_guild_entry(inter: discord.Interaction) -> tuple[dict[str, dict[str, dict[str, Union[list[int]]]]], str]:
+        """
+        returns: read json with potentially added hey and guild key
+        """
+
+        with open(ROLES_JSON, "r") as f:
+            roles_json = json.load(f)
+
+        # check if json has already the needed structure
+        guild_key = utl.extract_guild_id_str_from_interaction(inter)
+        if guild_key not in roles_json:
+            roles_json[guild_key] = {}
+
+        if "roles" not in roles_json[guild_key]:
+            roles_json[guild_key]["roles"] = {}
+
+        return roles_json, guild_key
+
     @app_commands.command(name="update_roles", description="Add or remove a role from the selection database")
     @app_commands.guild_only
     async def add_role(self, interaction: discord.Interaction, role: discord.Role,
@@ -183,17 +203,7 @@ class AutoRoleMenu(commands.Cog):
             await interaction.response.send_message("Only users with ban permissions can do this.", ephemeral=False)
             return
 
-        # read
-        with open(ROLES_JSON, "r") as f:
-            roles_json = json.load(f)
-
-        # check if json has already the needed structure
-        guild_key = str(interaction.guild.id)
-        if guild_key not in roles_json:
-            roles_json[guild_key] = {}
-
-        if "roles" not in roles_json[guild_key]:
-            roles_json[guild_key]["roles"] = {}
+        roles_json, guild_key = self.get_dict_ensure_guild_entry(interaction)
 
         # TODO: validate if pool has it's own slash command so it can be addressed from the user via discord
         if pool not in roles_json[guild_key]["roles"]:
