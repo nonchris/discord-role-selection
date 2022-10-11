@@ -208,6 +208,8 @@ class AutoRoleMenu(commands.Cog):
         # TODO: validate if pool has it's own slash command so it can be addressed from the user via discord
         if pool not in roles_json[guild_key]["roles"]:
             roles_json[guild_key]["roles"][pool] = []
+            logger.info(f"Pool '{pool}' was created, invoked by '{interaction.user.id}'")
+            await interaction.response.send_message(f"New pool was created: '{pool}'", ephemeral=False)
 
         # zoom in
         target: list[int] = roles_json[guild_key]["roles"][pool]
