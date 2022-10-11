@@ -79,6 +79,10 @@ def extract_id_from_string(content: str) -> Union[int, None]:
     return int(match.group(2)) if match else None
 
 
+def extract_guild_id_str_from_interaction(interaction: discord.Interaction) -> str:
+    return str(interaction.guild.id)
+
+
 def get_member_name(member: discord.Member) -> str:
     """!
     Shorthand to extract wich name to use when addressing member
