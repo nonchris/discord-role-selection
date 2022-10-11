@@ -1,5 +1,5 @@
 import json
-from typing import Literal, Union
+from typing import Literal, Union, Optional
 
 import discord
 from discord import app_commands
@@ -231,18 +231,26 @@ class AutoRoleMenu(commands.Cog):
         await interaction.response.send_message(
             'Pick the roles you want:\n' + extra_info, view=view, ephemeral=ephemeral)
 
-    @app_commands.command(name="notification", description="Get the character roles you want")
-    @app_commands.guild_only
-    async def select_notification_roles(self, interaction: discord.Interaction):
-        """Select roles you wanna have"""
-        await self.send_select_roles(interaction, roles_menu="notification", max_len=20)
+    @app_commands.command(name="roles", description="Get a menu with all role-menus that are available")
+    async def send_roles_menu(self, interaction: discord.Interaction, ephemeral: Optional[bool] = True):
+        """Get a menu with all role-menus that are available"""
+        get_dict_ensure_guild_entry(interaction)  # ensure that dict is there  # TODO: maybe just do it on join of bot
+        roles_buttons = RoleMenuButtons(self.bot, utl.extract_guild_id_str_from_interaction(interaction))
 
-    @app_commands.command(name="character", description="Get the character roles you want")
-    @app_commands.guild_only
-    async def select_character_roles(self, interaction: discord.Interaction):
-        """Select roles you wanna have"""
-        await self.send_select_roles(interaction, roles_menu="character", max_len=20)
+        # check if there are any buttons/ pools to send
+        if len(roles_buttons.children) < 1:
+            await interaction.response.send_message(
+                "There are no role pools setup yet. Please ask an administrator to set it up."
+            )
+            return
 
+        # if there is only one pool, we can skip the buttons
+        if len(child := roles_buttons.children) == 1:
+            await child[0].callback(interaction)
+            return
+
+        # send buttons for selection
+        await interaction.response.send_message('Select your menu:\n', view=roles_buttons, ephemeral=ephemeral)
 
     @app_commands.command(
         name="update_roles",
