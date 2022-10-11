@@ -215,10 +215,12 @@ class AutoRoleMenu(commands.Cog):
         await self.send_select_roles(interaction, roles_menu="character", max_len=20)
 
 
-    @app_commands.command(name="update_roles", description="Add or remove a role from the selection database")
+    @app_commands.command(
+        name="update_roles",
+        description="Add or remove a roles and pools from the selection database")
     @app_commands.guild_only
     async def add_role(self, interaction: discord.Interaction, role: discord.Role,
-                       pool: Literal["notification", "character"], action: Literal["add", "remove"]):
+                       pool: str, action: Literal["add", "remove"]):
         """ Add or remove a key from the selection database """
 
         member: discord.Member = interaction.guild.get_member(interaction.user.id)
@@ -226,13 +228,21 @@ class AutoRoleMenu(commands.Cog):
             await interaction.response.send_message("Only users with ban permissions can do this.", ephemeral=False)
             return
 
-        roles_json, guild_key = self.get_dict_ensure_guild_entry(interaction)
+        roles_json, guild_key = get_dict_ensure_guild_entry(interaction)
 
+        pool_info = ""  # may contain extra info if a pool was added or deleted
         # TODO: validate if pool has it's own slash command so it can be addressed from the user via discord
-        if pool not in roles_json[guild_key]["roles"]:
+        # TODO: validate that there are only as many pools as fitting into one button menu
+        # add pool if operation is 'add' and key does not exist
+        if pool not in roles_json[guild_key]["roles"] and action == "add":
             roles_json[guild_key]["roles"][pool] = []
             logger.info(f"Pool '{pool}' was created, invoked by '{interaction.user.id}'")
-            await interaction.response.send_message(f"New pool was created: '{pool}'", ephemeral=False)
+            pool_info = f"New pool was created: '{pool}'"
+
+        # reject if pool does not exist and action is remove
+        if pool not in roles_json[guild_key]["roles"] and action == "remove":
+            await interaction.response.send_message(f"Pool '{pool}' does not exist")
+            return
 
         # zoom in
         target: list[int] = roles_json[guild_key]["roles"][pool]
@@ -242,21 +252,30 @@ class AutoRoleMenu(commands.Cog):
             logger.info(f"Pool '{pool}': Added '{role.name}' with id ({role.id}), invoked by '{interaction.user.id}'")
 
         # shall be removed
+        # test if object is in list
         if action == "remove":
+            if role.id not in target:
+                await interaction.response.send_message(f"Role '{role.name}' in not in pool '{pool}'")
+                return
+
+            # trigger removal
             target.remove(role.id)
             logger.info(f"Pool '{pool}': Removed '{role.name}' with id ({role.id}), invoked by '{interaction.user.id}'")
-            # delete empty pool
+
+            # delete pool if empty
             if len(target) < 1:
                 del roles_json[guild_key]["roles"][pool]
                 logger.info(f"Deleted empty pool '{pool}' on guild '{guild_key}'")
+                pool_info = f"Empty pool was deleted: '{pool}'"
 
-        # write again
+        # write changes
         with open(ROLES_JSON, "w") as f:
             json.dump(roles_json, f, indent=4)
 
         # response
         await interaction.response.send_message(
-            f"The role {role.mention} was {'added to' if action == 'add' else 'removed from'} '{pool}'", ephemeral=False)
+            f"The role {role.mention} was {'added to' if action == 'add' else 'removed from'} '{pool}'\n{pool_info}",
+            ephemeral=False)
 
 
 async def setup(bot):
