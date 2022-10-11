@@ -131,6 +131,24 @@ class DropdownView(discord.ui.View):
             self.add_item(item)
 
 
+def get_dict_ensure_guild_entry(inter: discord.Interaction) -> tuple[dict[str, dict[str, dict[str, Union[list[int]]]]], str]:
+    """
+    returns: read json with potentially added hey and guild key
+    """
+
+    with open(ROLES_JSON, "r") as f:
+        roles_json = json.load(f)
+
+    # check if json has already the needed structure
+    guild_key = utl.extract_guild_id_str_from_interaction(inter)
+    if guild_key not in roles_json:
+        roles_json[guild_key] = {}
+
+    if "roles" not in roles_json[guild_key]:
+        roles_json[guild_key]["roles"] = {}
+
+    return roles_json, guild_key
+
 class AutoRoleMenu(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
@@ -173,24 +191,6 @@ class AutoRoleMenu(commands.Cog):
         """Select roles you wanna have"""
         await self.send_select_roles(interaction, roles_menu="character", max_len=20)
 
-    @staticmethod                                                  # id     # roles   # pool     # r-ids
-    def get_dict_ensure_guild_entry(inter: discord.Interaction) -> tuple[dict[str, dict[str, dict[str, Union[list[int]]]]], str]:
-        """
-        returns: read json with potentially added hey and guild key
-        """
-
-        with open(ROLES_JSON, "r") as f:
-            roles_json = json.load(f)
-
-        # check if json has already the needed structure
-        guild_key = utl.extract_guild_id_str_from_interaction(inter)
-        if guild_key not in roles_json:
-            roles_json[guild_key] = {}
-
-        if "roles" not in roles_json[guild_key]:
-            roles_json[guild_key]["roles"] = {}
-
-        return roles_json, guild_key
 
     @app_commands.command(name="update_roles", description="Add or remove a role from the selection database")
     @app_commands.guild_only
