@@ -222,6 +222,10 @@ class AutoRoleMenu(commands.Cog):
         if action == "remove":
             target.remove(role.id)
             logger.info(f"Pool '{pool}': Removed '{role.name}' with id ({role.id}), invoked by '{interaction.user.id}'")
+            # delete empty pool
+            if len(target) < 1:
+                del roles_json[guild_key]["roles"][pool]
+                logger.info(f"Deleted empty pool '{pool}' on guild '{guild_key}'")
 
         # write again
         with open(ROLES_JSON, "w") as f:
