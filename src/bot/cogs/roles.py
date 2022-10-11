@@ -132,6 +132,35 @@ class DropdownView(discord.ui.View):
 
 
 """
+Menu to select which drop-down is wanted
+"""
+
+
+class DropDownSendButton(discord.ui.Button):
+    """ Button representing a pool """
+    def __init__(self, pool: str):
+        super().__init__()
+        self.label = pool
+
+    async def callback(self, interaction: discord.Interaction):
+        """ Send a dropdown for the selected pool """
+
+        # issue sending of the selected drop-down menu
+        await AutoRoleMenu.send_select_roles(interaction, roles_menu=self.label, max_len=20)
+
+
+class RoleMenuButtons(discord.ui.View):
+    """ Buttons that represent all pools to select from """
+    def __init__(self, bot: commands.Bot, guild_id_str: str, timeout=None):
+        super().__init__(timeout=timeout)
+        self.bot = bot
+
+        # add buttons for all pools on this server
+        for pool in get_roles_dict()[guild_id_str]["roles"].keys():
+            self.add_item(DropDownSendButton(pool))
+
+
+"""
 Manage json
 """
 
