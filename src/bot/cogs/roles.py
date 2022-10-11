@@ -131,7 +131,20 @@ class DropdownView(discord.ui.View):
             self.add_item(item)
 
 
-def get_dict_ensure_guild_entry(inter: discord.Interaction) -> tuple[dict[str, dict[str, dict[str, Union[list[int]]]]], str]:
+"""
+Manage json
+"""
+
+RolesJson = dict[str, dict[str, dict[str, Union[list[int]]]]]
+
+
+def get_roles_dict() -> RolesJson:
+    """ Wrapper to read the json"""
+    with open(ROLES_JSON, "r") as f:
+        return json.load(f)
+
+
+def get_dict_ensure_guild_entry(inter: discord.Interaction) -> tuple[RolesJson, str]:
     """
     returns: read json with potentially added hey and guild key
     """
@@ -140,14 +153,24 @@ def get_dict_ensure_guild_entry(inter: discord.Interaction) -> tuple[dict[str, d
         roles_json = json.load(f)
 
     # check if json has already the needed structure
+    was_changed = False  # track if keys were added
+
     guild_key = utl.extract_guild_id_str_from_interaction(inter)
     if guild_key not in roles_json:
         roles_json[guild_key] = {}
+        was_changed = True
 
     if "roles" not in roles_json[guild_key]:
         roles_json[guild_key]["roles"] = {}
+        was_changed = True
+
+    # only write if contents were changed
+    if was_changed:
+        with open(ROLES_JSON, "w") as f:
+            json.dump(roles_json, f, indent=4)
 
     return roles_json, guild_key
+
 
 class AutoRoleMenu(commands.Cog):
     def __init__(self, bot):
