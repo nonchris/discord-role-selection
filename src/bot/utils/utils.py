@@ -83,6 +83,16 @@ def extract_guild_id_str_from_interaction(interaction: discord.Interaction) -> s
     return str(interaction.guild.id)
 
 
+def get_emote(guild: discord.Guild, emoji_id: Union[int, str]) -> Union[discord.Emoji, str]:
+    """ Takes a guild and an emoji-id. Decides what this emoji is and returns it if existing """
+    custom = discord.utils.get(guild.emojis, id=emoji_id)
+    if custom:
+        return custom
+
+    if isinstance(emoji_id, str):
+        return emoji_id
+
+
 def get_member_name(member: discord.Member) -> str:
     """!
     Shorthand to extract wich name to use when addressing member
