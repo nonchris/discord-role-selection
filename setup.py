@@ -10,19 +10,18 @@ with open('requirements.txt') as f:
     install_requires = f.read().splitlines()
 
 setup(
-    # TODO: Adjust your project information here
-    name='discord-bot',
-    version='2.0.0',
+    name='discord-role-selection',
+    version='2.1.0',
     description='A role selection bot using drop down menus',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/nonchris/discord-bot',
+    url='https://github.com/nonchris/discord-role-selection',
     author='nonchris',
     author_email='info@nonchris.eu',
 
     project_urls={
-        'Bug Reports': 'https://github.com/nonchris/discord-bot/issues',
-        'Source': 'https://github.com/https://github.com/nonchris/discord-bot',
+        'Bug Reports': 'https://github.com/nonchris/discord-role-selection/issues',
+        'Source': 'https://github.com/nonchris/discord-role-selection/discord-bot',
     },
 
     keywords='discord-bot',
