@@ -327,7 +327,13 @@ class AutoRoleMenu(commands.Cog):
         if action == "add":
             # prevent double additions
             if target.get(str(role.id), None):
-                await interaction.response.send_message(f"Role '{role.name}' is already registered in pool '{pool}'")
+                await interaction.response.send_message(f"Role '{role.name}' is already registered in pool '{pool}'\n")
+                # users can use this moment to change / add an emoji to that role
+                msg = await interaction.channel.send(
+                    f"-\nYou can change the displayed emoji for this role by reacting with an emoji to *this* message.\n"
+                    f"Note that a set emote for that role in your server settings will overwrite this."
+                )
+                await self.wait_for_emoji(interaction, msg, role, roles_json, target)
                 return
 
             target[str(role.id)] = {"id": role.id, "emoji": None}
@@ -358,6 +364,14 @@ class AutoRoleMenu(commands.Cog):
         await interaction.response.send_message(
             f"The role {role.mention} was {'added to' if action == 'add' else 'removed from'} '{pool}'\n{pool_info}",
             ephemeral=False)
+
+        msg = await interaction.channel.send(
+            f"-\nYou can add a displayed emoji for this role by reacting with an emoji to *this* message.\n"
+            f"Note that a set emote for that role in your server settings will overwrite this."
+        )
+
+        # user can add an emoji to the role afterwards
+        await self.wait_for_emoji(interaction, msg, role, roles_json, target)
 
     async def wait_for_emoji(self,
                              interaction: discord.Interaction,
