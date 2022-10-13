@@ -62,11 +62,11 @@ class RoleDropdown(discord.ui.Select):
 
 class DropdownMaker:
     def __init__(self, guild: discord.Guild, member: discord.Member,
-                 roles_menu="character",
                  path_to_roles_json="data/roles.json"):
+                 pool="character",
         self.guild = guild
         self.member = member
-        self.name = roles_menu
+        self.name = pool
         self.roles_json: dict[str, list[int]] = {}
 
         self.role_ids: list[int] = self.read_json(path_to_roles_json, guild, key=roles_menu)
@@ -147,7 +147,7 @@ class DropDownSendButton(discord.ui.Button):
         """ Send a dropdown for the selected pool """
 
         # issue sending of the selected drop-down menu
-        await AutoRoleMenu.send_select_roles(interaction, roles_menu=self.label, max_len=20)
+        await AutoRoleMenu.send_select_roles(interaction, pool=self.label, max_len=20)
 
 
 class RoleMenuButtons(discord.ui.View):
@@ -208,7 +208,7 @@ class AutoRoleMenu(commands.Cog):
 
     @staticmethod
     async def send_select_roles(interaction: discord.Interaction,
-                                roles_menu="character",
+                                pool="character",
                                 path_to_roles_json=ROLES_JSON,
                                 max_len=25,
                                 min_values=0,
@@ -219,7 +219,7 @@ class AutoRoleMenu(commands.Cog):
         # create the view containing our dropdown
         # get an object that can generate as much dropdowns as we need
         options_maker = DropdownMaker(interaction.guild, interaction.user,
-                                      roles_menu=roles_menu,
+                                      pool=pool,
                                       path_to_roles_json=path_to_roles_json)
         # get option menus
         options = options_maker.get_role_menus(max_len=max_len, min_values=min_values, max_values=max_values)
