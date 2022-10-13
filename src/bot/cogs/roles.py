@@ -1,3 +1,4 @@
+import asyncio
 import json
 from typing import Literal, Union, Optional, Any
 
@@ -357,6 +358,66 @@ class AutoRoleMenu(commands.Cog):
         await interaction.response.send_message(
             f"The role {role.mention} was {'added to' if action == 'add' else 'removed from'} '{pool}'\n{pool_info}",
             ephemeral=False)
+
+    async def wait_for_emoji(self,
+                             interaction: discord.Interaction,
+                             message_to_listen_for: discord.Message,
+                             role: discord.Role,
+                             roles_json, target,
+                             timeout=60.0):
+        """
+        Wait if user reacts to sent message to set a display emote for the added / modified role
+        """
+
+        def reaction_check(_reaction: discord.Reaction, _user: discord.User):
+            return _user == interaction.user and _reaction.message.id == message_to_listen_for.id
+
+        # wait if user adds an emoji to this role
+        reaction: discord.Reaction
+        user: discord.User
+        emoji_id: Optional[str, int] = None
+        # loop until we get the wanted emote or time out
+        while True:
+            try:
+                reaction, user = await self.bot.wait_for('reaction_add', timeout=timeout, check=reaction_check)
+            except asyncio.TimeoutError:
+                logger.debug(f"No emote set for role '{role.id}' on guild '{role.guild.id}'")
+                break
+
+            emoji = reaction.emoji
+            if isinstance(emoji, discord.PartialEmoji):
+                emoji = discord.utils.get(interaction.guild.emojis, id=emoji.id)
+
+            # it's a standard emoji, we can use it
+            if not reaction.is_custom_emoji():
+                emoji_id = emoji
+                break
+
+            # it's a custom emoji, need to do some checks
+            if emoji is not None and not emoji.animated:
+                # we got an emoji we can use
+                emoji_id = emoji.id
+                break
+
+            await interaction.channel.send(
+                f"I can't use this emoji.\n"
+                f"This is the case when the bot emoji is animated or when I don't have access to it.\n"
+                f"Please react with a new emoji to the same message above."
+            )
+
+        if emoji_id:
+            await reaction.message.add_reaction(reaction)
+            await interaction.channel.send(
+                f"The emoji {emoji} will be used as icon for this role"
+            )
+            target[str(role.id)]["emoji"] = emoji_id
+            logger.info(
+                f"Emoji {emoji_id} was configured for role '{role.id}' on guild '{role.guild.id}' by '{user.id}'"
+            )
+            # write changes
+            with open(ROLES_JSON, "w") as f:
+                json.dump(roles_json, f, indent=4)
+
 
 
 async def setup(bot):
