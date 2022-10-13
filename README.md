@@ -42,7 +42,11 @@ _If a variable is set using env and json the **the environment-variable replaces
 
 ### example for roles.json
 This explanation is optional. The whole configuration can be done using discord without caring about its internal data structure!  
-The first key is the server id, then the key `roles` and then the name of the menu.  
+The first key is the server id, then the key `roles` and then the name of the menu, in there are the roles that can be selected.   
+Those role-entries hold their own id as int (for convenience) and also a potential emote that shall be displayed next to that role.  
+This emote can be a normal unicode emoji (the cryptic strings) or an int representing the id of a custom emoji of that guild.  
+If the emoji is null, nothing will be displayed.  
+*Note: A set emoji for the role in discord itself will overwrite this whole behaviour!*
 ```json
 {
     "446373739740004352": {
@@ -50,11 +54,11 @@ The first key is the server id, then the key `roles` and then the name of the me
             "character": {
                 "448617700386668574": {
                     "id": 448617700386668574,
-                    "emoji": null
+                    "emoji": "\ud83c\uddeb\ud83c\uddf7"
                 },
                 "448617700399382531": {
                     "id": 448617700399382531,
-                    "emoji": null
+                    "emoji": 944349276643934238
                 }
             },
             "notification": {
