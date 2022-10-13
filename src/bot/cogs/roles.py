@@ -324,9 +324,11 @@ class AutoRoleMenu(commands.Cog):
         target: dict[str, dict[str, Any]] = roles_json[guild_key]["roles"][pool]
         # okay, shall be added
         if action == "add":
-            print(roles_json[guild_key]["roles"])
-            print(target)
-            # TODO: Check if already entered
+            # prevent double additions
+            if target.get(str(role.id), None):
+                await interaction.response.send_message(f"Role '{role.name}' is already registered in pool '{pool}'")
+                return
+
             target[str(role.id)] = {"id": role.id, "emoji": None}
             logger.info(f"Pool '{pool}': Added '{role.name}' with id ({role.id}), invoked by '{interaction.user.id}'")
 
