@@ -1,5 +1,6 @@
 import asyncio
 import json
+import shutil
 from typing import Literal, Union, Optional, Any
 
 import discord
@@ -205,8 +206,15 @@ def ensure_latest_json_format():
                 was_changed = True
 
     if was_changed:
+        # TODO: Check if file exists. This will be a problem when more than one format change occurred. Now we're good.
+        backup_name = f"{ROLES_JSON}.BACKUP"
+        shutil.copyfile(ROLES_JSON, backup_name)
         with open(ROLES_JSON, "w") as f:
             json.dump(roles_json, f, indent=4)
+
+        logger.warning(
+            f"The json format was updated! - A copy of the old file can be found under '{backup_name}'"
+        )
 
 
 
