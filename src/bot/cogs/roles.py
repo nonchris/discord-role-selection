@@ -62,8 +62,8 @@ class RoleDropdown(discord.ui.Select):
 
 class DropdownMaker:
     def __init__(self, guild: discord.Guild, member: discord.Member,
-                 path_to_roles_json="data/roles.json"):
                  pool="character",
+                 path_to_roles_json=ROLES_JSON):
         self.guild = guild
         self.member = member
         self.name = pool
