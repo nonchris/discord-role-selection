@@ -165,7 +165,7 @@ class RoleMenuButtons(discord.ui.View):
 Manage json
 """
 
-RolesJson = dict[str, dict[str, dict[str, Union[list[int]]]]]
+RolesJson = dict[str, dict[str, dict[str, Union[list[int], dict[str, dict[str, Any]]]]]]
 
 
 def get_roles_dict() -> RolesJson:
@@ -174,10 +174,37 @@ def get_roles_dict() -> RolesJson:
         return json.load(f)
 
 
+def ensure_latest_json_format():
+    """ Function that migrates old json formats to newer structures """
+
+    roles_json = get_roles_dict()
+    was_changed = False
+
+    # sanitize first change:
+    # pools contain no longer a list of role-ids
+    # they contain dicts, one per role containing even deeper dicts that hold id and more information
+    for guild, guild_dict in roles_json.items():
+        guild_roles_dict = guild_dict["roles"]
+        # zoom into pools
+        for pool, roles_array in guild_roles_dict.items():
+            # check if this is still a list, if yes build new dict with deeper dicts
+            if isinstance(roles_array, list):
+                guild_roles_dict[pool] = {str(role): {"id": role, "emote": None} for role in roles_array}
+                was_changed = True
+
+    if was_changed:
+        with open(ROLES_JSON, "w") as f:
+            json.dump(roles_json, f, indent=4)
+
+
+
 def get_dict_ensure_guild_entry(inter: discord.Interaction) -> tuple[RolesJson, str]:
     """
     returns: read json with potentially added hey and guild key
     """
+
+    # make sure that the read in data is up-to-date
+    ensure_latest_json_format()
 
     with open(ROLES_JSON, "r") as f:
         roles_json = json.load(f)
