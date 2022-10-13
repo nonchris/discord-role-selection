@@ -398,8 +398,11 @@ class AutoRoleMenu(commands.Cog):
                 logger.debug(f"No emote set for role '{role.id}' on guild '{role.guild.id}'")
                 break
 
+            # if it's an partial emoji we need to resolve it first
+            # can be None if emoji is not on that guild, which means we shouldn't use it although we might be able to...
             emoji = reaction.emoji
             if isinstance(emoji, discord.PartialEmoji):
+                # search for emoji on this guild
                 emoji = discord.utils.get(interaction.guild.emojis, id=emoji.id)
 
             # it's a standard emoji, we can use it
@@ -407,12 +410,14 @@ class AutoRoleMenu(commands.Cog):
                 emoji_id = emoji
                 break
 
-            # it's a custom emoji, need to do some checks
+            # it's a custom emoji
+            # need to check if it's not animated and if we we're able to resolve emoji for that guild
             if emoji is not None and not emoji.animated:
                 # we got an emoji we can use
                 emoji_id = emoji.id
                 break
 
+            # emoji is invalid - try again :D
             await interaction.channel.send(
                 f"I can't use this emoji.\n"
                 f"This is the case when the bot emoji is animated or when I don't have access to it.\n"
