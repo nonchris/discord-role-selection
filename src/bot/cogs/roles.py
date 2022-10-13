@@ -1,5 +1,5 @@
 import json
-from typing import Literal, Union, Optional
+from typing import Literal, Union, Optional, Any
 
 import discord
 from discord import app_commands
@@ -12,10 +12,11 @@ from ..utils import utils as utl
 
 class RoleDropdown(discord.ui.Select):
     def __init__(self, guild: discord.Guild, member: discord.Member,
-                 roles_to_choose: list[discord.Role], name="", is_enumeration=True, number=0, min_values=0,
+                 roles_to_choose: list[dict[str, Union[int]]], name="", is_enumeration=True, number=0, min_values=0,
                  max_values=25):
 
-        self.roles: list[discord.Role] = roles_to_choose
+        self.pool_roles: list[dict[str, Union[int]]] = roles_to_choose
+        self.roles = self.convert_ids_to_roles(guild)
 
         # options specific for member
         self.sel_options = self.make_options(member)
@@ -25,13 +26,24 @@ class RoleDropdown(discord.ui.Select):
                          max_values=max_values,
                          options=self.sel_options)
 
+    def convert_ids_to_roles(self, guild: discord.Guild) -> list[discord.Role]:
+        self.roles = [guild.get_role(role["id"]) for role in self.pool_roles]
+        return self.roles
+
     def make_options(self, member: discord.Member) -> list[discord.SelectOption]:
         """ Make options specific for member from select options """
         # wrap each role inside an SelectOption
         self.sel_options = []
-        for role in self.roles:
-            option = discord.SelectOption(label=f"{role.name}", value=str(role.id),
-                                          description=f"See the #{role.name} channel", emoji=role.unicode_emoji)
+        for role_dict in self.pool_roles:
+            guild: discord.Guild = member.guild
+            role: discord.Role = guild.get_role(role_dict["id"])
+
+            # decide where to get the emoji from
+            emoji = role.unicode_emoji or utl.get_emote(guild, role_dict["emoji"])
+            option = discord.SelectOption(label=f"{role.name}",
+                                          value=str(role.id),
+                                          description=f"See the #{role.name} channel",
+                                          emoji=emoji)
 
             # see if role shall be selected because user has this role already
             if role in member.roles:
@@ -61,7 +73,7 @@ class RoleDropdown(discord.ui.Select):
 
 
 class DropdownMaker:
-    def __init__(self, guild: discord.Guild, member: discord.Member,
+    def __init__(self, guild: discord.Guild,member: discord.Member,
                  pool="character",
                  path_to_roles_json=ROLES_JSON):
         self.guild = guild
@@ -69,20 +81,19 @@ class DropdownMaker:
         self.name = pool
         self.roles_json: dict[str, list[int]] = {}
 
-        self.role_ids: list[int] = self.read_json(path_to_roles_json, guild, key=roles_menu)
+        # read in json and get the according roles
+        self.pool_roles: list[dict] = self.read_json(path_to_roles_json, guild, key=pool)
 
-        self.roles: list[discord.Role] = self.convert_ids_to_roles(guild)
+        # self.roles: list[discord.Role] = self.convert_ids_to_roles(guild)
 
-    def read_json(self, file: str, guild: discord.Guild, key: str) -> list[int]:
+    def read_json(self, file: str, guild: discord.Guild, key: str) -> list[dict[str, Any]]:
+        """ Read json and return role IDs """
         with open(file, "r") as f:
             self.roles_json = json.load(f)
 
-        self.role_ids = self.roles_json[str(guild.id)]["roles"][key]
-        return self.role_ids
-
-    def convert_ids_to_roles(self, guild: discord.Guild) -> list[discord.Role]:
-        self.roles = [guild.get_role(r_id) for r_id in self.role_ids]
-        return self.roles
+        # convert roles-keys into integers
+        self.pool_roles = list(self.roles_json[str(guild.id)]["roles"][key].values())
+        return self.pool_roles
 
     def get_role_menus(self, max_len=25, min_values=0, max_values=None) -> list[RoleDropdown]:
         # if no limit is set, assume that all options can be chosen
@@ -95,13 +106,13 @@ class DropdownMaker:
 
         # holds the options that will be wrapped inside a single DropDown menu
         menu_items = []
-        for i, role in enumerate(self.roles):
+        for i, role in enumerate(self.pool_roles):
 
             # add role to menu_items
             menu_items.append(role)
 
             # menu is full, add it to list or this was the last element, so we need to add this un-full option menu
-            if len(menu_items) == max_len or i == len(self.roles) - 1:
+            if len(menu_items) == max_len or i == len(self.pool_roles) - 1:
                 divided_options_list.append(menu_items)
 
                 menu_items = []  # reset list, elements from that list are now options
@@ -189,7 +200,7 @@ def ensure_latest_json_format():
         for pool, roles_array in guild_roles_dict.items():
             # check if this is still a list, if yes build new dict with deeper dicts
             if isinstance(roles_array, list):
-                guild_roles_dict[pool] = {str(role): {"id": role, "emote": None} for role in roles_array}
+                guild_roles_dict[pool] = {str(role): {"id": role, "emoji": None} for role in roles_array}
                 was_changed = True
 
     if was_changed:
@@ -300,7 +311,7 @@ class AutoRoleMenu(commands.Cog):
         # TODO: validate that there are only as many pools as fitting into one button menu
         # add pool if operation is 'add' and key does not exist
         if pool not in roles_json[guild_key]["roles"] and action == "add":
-            roles_json[guild_key]["roles"][pool] = []
+            roles_json[guild_key]["roles"][pool] = {}
             logger.info(f"Pool '{pool}' was created, invoked by '{interaction.user.id}'")
             pool_info = f"New pool was created: '{pool}'"
 
@@ -310,21 +321,24 @@ class AutoRoleMenu(commands.Cog):
             return
 
         # zoom in
-        target: list[int] = roles_json[guild_key]["roles"][pool]
+        target: dict[str, dict[str, Any]] = roles_json[guild_key]["roles"][pool]
         # okay, shall be added
         if action == "add":
-            target.append(role.id)
+            print(roles_json[guild_key]["roles"])
+            print(target)
+            # TODO: Check if already entered
+            target[str(role.id)] = {"id": role.id, "emoji": None}
             logger.info(f"Pool '{pool}': Added '{role.name}' with id ({role.id}), invoked by '{interaction.user.id}'")
 
         # shall be removed
         # test if object is in list
         if action == "remove":
-            if role.id not in target:
+            if not target.get(str(role.id), None):
                 await interaction.response.send_message(f"Role '{role.name}' in not in pool '{pool}'")
                 return
 
             # trigger removal
-            target.remove(role.id)
+            del target[str(role.id)]
             logger.info(f"Pool '{pool}': Removed '{role.name}' with id ({role.id}), invoked by '{interaction.user.id}'")
 
             # delete pool if empty
