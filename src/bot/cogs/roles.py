@@ -373,10 +373,12 @@ class AutoRoleMenu(commands.Cog):
             f"The role {role.mention} was {'added to' if action == 'add' else 'removed from'} '{pool}'\n{pool_info}",
             ephemeral=False)
 
-        msg = await interaction.channel.send(
-            f"-\nYou can add a displayed emoji for this role by reacting with an emoji to *this* message.\n"
-            f"Note that a set emote for that role in your server settings will overwrite this."
-        )
+        # user can set an emoji if he wants
+        if action == "add":
+            msg = await interaction.channel.send(
+                f"-\nYou can add a displayed emoji for this role by reacting with an emoji to *this* message.\n"
+                f"Note that a set emote for that role in your server settings will overwrite this."
+            )
 
         # user can add an emoji to the role afterwards
         await self.wait_for_emoji(interaction, msg, role, roles_json, target)
