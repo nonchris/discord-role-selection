@@ -39,7 +39,29 @@
             };
           };
 
-        };
+          # Documenation for this feature: https://github.com/NixOS/nixpkgs/blob/master/pkgs/build-support/docker/examples.nix
+          # nix build .#docker-image
+          # docker load < result
+          docker-image = pkgs.dockerTools.buildLayeredImage {
+            name = "nonchris/discord-role-selection";
+            tag = "latest";
+            contents = [
+              self.packages."${pkgs.system}".discord-bot
+            ];
+            config = {
+              Cmd = [ "${self.packages."${pkgs.system}".discord-bot}/bin/discord-bot" ];
 
+              Env = [
+                "TOKEN=PASTE-TOKEN"
+                "PREFIX=b!"
+                "VERSION=unknown"
+                "OWNER_NAME=unknwon"
+                "OWNER_ID=100000000000000000"
+                "ACTIVITY_NAME=f{PREFIX}help"
+                "ROLES_JSON=data/roles.json"
+              ];
+            };
+          };
+        };
       });
 }
