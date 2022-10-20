@@ -1,0 +1,40 @@
+name: build docker images
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build-docker:
+    strategy:
+      matrix:
+        arch: [x86_64]
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup-docker
+        uses: docker-practice/actions-setup-docker@master
+
+      # https://github.com/cachix/install-nix-action
+      - name: Install nix
+        uses: cachix/install-nix-action@v17
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          install_url: https://github.com/numtide/nix-unstable-installer/releases/download/nix-2.12.0pre20221005_ac0fb38/install
+          # Configure Nix to enable flakes
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          # Nix Flakes doesn't work on shallow clones
+          fetch-depth: 0
+
+      - name: build docker image
+        run: |
+          nix build .#packages.${{ matrix.arch }}-linux.docker-image
+          docker load < result
+
+      - name: execute docker image
+        run: |
+          docker image ls

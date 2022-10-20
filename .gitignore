@@ -1,6 +1,9 @@
 # Our own folder for data
 data/
 
+# nix build output
+result
+
 # Created by https://www.toptal.com/developers/gitignore/api/python,pycharm+all
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,pycharm+all
 
